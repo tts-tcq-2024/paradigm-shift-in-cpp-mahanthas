@@ -45,12 +45,21 @@ bool isInRange(float value, float lowerLimit, float upperLimit, const string& ou
   return true;
 }
 
-void printWarning(float value, float lowerLimit, float upperLimit, float tolerance, const string& lowWarningMsg, const string& highWarningMsg) {
+void printLowWarning(float value, float lowerLimit, float tolerance, const string& lowWarningMsg) {
   if(value >= lowerLimit && value <= lowerLimit + tolerance) {
     printMessage(lowWarningMsg);
-  } else if(value >= upperLimit - tolerance && value <= upperLimit) {
+  }
+}
+
+void printHighWarning(float value, float upperLimit, float tolerance, const string& highWarningMsg) {
+  if(value >= upperLimit - tolerance && value <= upperLimit) {
     printMessage(highWarningMsg);
   }
+}
+
+void printWarning(float value, float lowerLimit, float upperLimit, float tolerance, const string& lowWarningMsg, const string& highWarningMsg) {
+  printLowWarning(value, lowerLimit, tolerance, lowWarningMsg);
+  printHighWarning(value, upperLimit, tolerance, highWarningMsg);
 }
 
 bool isTemperatureOk(float temperature) {

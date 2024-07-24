@@ -32,42 +32,38 @@ void printMessage(const string& message) {
   cout << translate(message) << endl;
 }
 
-bool isTemperatureOk(float temperature) {
-  if(temperature < 0 || temperature > TEMPERATURE_UPPER_LIMIT) {
-    printMessage("Temperature out of range!");
+bool isInRange(float value, float lowerLimit, float upperLimit, const string& outOfRangeMsg) {
+  if(value < lowerLimit || value > upperLimit) {
+    printMessage(outOfRangeMsg);
     return false;
   }
-  if(temperature >= 0 && temperature <= 0 + TEMPERATURE_WARNING_TOLERANCE) {
-    printMessage("Approaching low temperature");
+  return true;
+}
+
+void checkWarning(float value, float lowerLimit, float upperLimit, float tolerance, const string& lowWarningMsg, const string& highWarningMsg) {
+  if(value >= lowerLimit && value <= lowerLimit + tolerance) {
+    printMessage(lowWarningMsg);
   }
-  if(temperature >= TEMPERATURE_UPPER_LIMIT - TEMPERATURE_WARNING_TOLERANCE && temperature <= TEMPERATURE_UPPER_LIMIT) {
-    printMessage("Approaching high temperature");
+  if(value >= upperLimit - tolerance && value <= upperLimit) {
+    printMessage(highWarningMsg);
   }
+}
+
+bool isTemperatureOk(float temperature) {
+  if(!isInRange(temperature, 0, TEMPERATURE_UPPER_LIMIT, "Temperature out of range!")) return false;
+  checkWarning(temperature, 0, TEMPERATURE_UPPER_LIMIT, TEMPERATURE_WARNING_TOLERANCE, "Approaching low temperature", "Approaching high temperature");
   return true;
 }
 
 bool isSocOk(float soc) {
-  if(soc < 20 || soc > SOC_UPPER_LIMIT) {
-    printMessage("State of Charge out of range!");
-    return false;
-  }
-  if(soc >= 20 && soc <= 20 + SOC_WARNING_TOLERANCE) {
-    printMessage("Approaching discharge");
-  }
-  if(soc >= SOC_UPPER_LIMIT - SOC_WARNING_TOLERANCE && soc <= SOC_UPPER_LIMIT) {
-    printMessage("Approaching charge-peak");
-  }
+  if(!isInRange(soc, 20, SOC_UPPER_LIMIT, "State of Charge out of range!")) return false;
+  checkWarning(soc, 20, SOC_UPPER_LIMIT, SOC_WARNING_TOLERANCE, "Approaching discharge", "Approaching charge-peak");
   return true;
 }
 
 bool isChargeRateOk(float chargeRate) {
-  if(chargeRate > CHARGE_RATE_UPPER_LIMIT) {
-    printMessage("Charge Rate out of range!");
-    return false;
-  }
-  if(chargeRate >= CHARGE_RATE_UPPER_LIMIT - CHARGE_RATE_WARNING_TOLERANCE && chargeRate <= CHARGE_RATE_UPPER_LIMIT) {
-    printMessage("Approaching high charge rate");
-  }
+  if(!isInRange(chargeRate, 0, CHARGE_RATE_UPPER_LIMIT, "Charge Rate out of range!")) return false;
+  checkWarning(chargeRate, 0, CHARGE_RATE_UPPER_LIMIT, CHARGE_RATE_WARNING_TOLERANCE, "Approaching high charge rate", "Approaching high charge rate");
   return true;
 }
 

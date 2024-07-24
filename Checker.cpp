@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <iostream>
 #include <string>
+#include <map>
 using namespace std;
 
 enum Language { ENGLISH, GERMAN };
@@ -14,16 +15,20 @@ const float TEMPERATURE_WARNING_TOLERANCE = 0.05 * TEMPERATURE_UPPER_LIMIT; // 5
 const float SOC_WARNING_TOLERANCE = 0.05 * SOC_UPPER_LIMIT; // 5% of 80
 const float CHARGE_RATE_WARNING_TOLERANCE = 0.05 * CHARGE_RATE_UPPER_LIMIT; // 5% of 0.8
 
+map<string, string> englishToGerman = {
+    {"Temperature out of range!", "Temperatur außerhalb des Bereichs!"},
+    {"Approaching low temperature", "Annäherung an niedrige Temperatur"},
+    {"Approaching high temperature", "Annäherung an hohe Temperatur"},
+    {"State of Charge out of range!", "Ladezustand außerhalb des Bereichs!"},
+    {"Approaching discharge", "Annäherung an Entladung"},
+    {"Approaching charge-peak", "Annäherung an Ladespitze"},
+    {"Charge Rate out of range!", "Laderate außerhalb des Bereichs!"},
+    {"Approaching high charge rate", "Annäherung an hohe Laderate"}
+};
+
 string translate(const string& message) {
   if(currentLanguage == GERMAN) {
-    if(message == "Temperature out of range!") return "Temperatur außerhalb des Bereichs!";
-    if(message == "Approaching low temperature") return "Annäherung an niedrige Temperatur";
-    if(message == "Approaching high temperature") return "Annäherung an hohe Temperatur";
-    if(message == "State of Charge out of range!") return "Ladezustand außerhalb des Bereichs!";
-    if(message == "Approaching discharge") return "Annäherung an Entladung";
-    if(message == "Approaching charge-peak") return "Annäherung an Ladespitze";
-    if(message == "Charge Rate out of range!") return "Laderate außerhalb des Bereichs!";
-    if(message == "Approaching high charge rate") return "Annäherung an hohe Laderate";
+    return englishToGerman[message];
   }
   return message;
 }
@@ -40,30 +45,29 @@ bool isInRange(float value, float lowerLimit, float upperLimit, const string& ou
   return true;
 }
 
-void checkWarning(float value, float lowerLimit, float upperLimit, float tolerance, const string& lowWarningMsg, const string& highWarningMsg) {
+void printWarning(float value, float lowerLimit, float upperLimit, float tolerance, const string& lowWarningMsg, const string& highWarningMsg) {
   if(value >= lowerLimit && value <= lowerLimit + tolerance) {
     printMessage(lowWarningMsg);
-  }
-  if(value >= upperLimit - tolerance && value <= upperLimit) {
+  } else if(value >= upperLimit - tolerance && value <= upperLimit) {
     printMessage(highWarningMsg);
   }
 }
 
 bool isTemperatureOk(float temperature) {
   if(!isInRange(temperature, 0, TEMPERATURE_UPPER_LIMIT, "Temperature out of range!")) return false;
-  checkWarning(temperature, 0, TEMPERATURE_UPPER_LIMIT, TEMPERATURE_WARNING_TOLERANCE, "Approaching low temperature", "Approaching high temperature");
+  printWarning(temperature, 0, TEMPERATURE_UPPER_LIMIT, TEMPERATURE_WARNING_TOLERANCE, "Approaching low temperature", "Approaching high temperature");
   return true;
 }
 
 bool isSocOk(float soc) {
   if(!isInRange(soc, 20, SOC_UPPER_LIMIT, "State of Charge out of range!")) return false;
-  checkWarning(soc, 20, SOC_UPPER_LIMIT, SOC_WARNING_TOLERANCE, "Approaching discharge", "Approaching charge-peak");
+  printWarning(soc, 20, SOC_UPPER_LIMIT, SOC_WARNING_TOLERANCE, "Approaching discharge", "Approaching charge-peak");
   return true;
 }
 
 bool isChargeRateOk(float chargeRate) {
   if(!isInRange(chargeRate, 0, CHARGE_RATE_UPPER_LIMIT, "Charge Rate out of range!")) return false;
-  checkWarning(chargeRate, 0, CHARGE_RATE_UPPER_LIMIT, CHARGE_RATE_WARNING_TOLERANCE, "Approaching high charge rate", "Approaching high charge rate");
+  printWarning(chargeRate, 0, CHARGE_RATE_UPPER_LIMIT, CHARGE_RATE_WARNING_TOLERANCE, "Approaching high charge rate", "Approaching high charge rate");
   return true;
 }
 
